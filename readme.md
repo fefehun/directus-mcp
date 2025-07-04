@@ -152,6 +152,8 @@ The MCP Server provides the following tools to interact with your Directus insta
 | **system-prompt**    | Provides context to the LLM assistant about its role | Start of a session to understand the system context            |
 | **users-me**         | Get current user information                         | Understanding permissions, personalizing responses             |
 | **read-collections** | Retrieve the schema of all collections               | Exploring database structure, understanding relationships      |
+| **create-collection**| Create new collections with fields and metadata      | Setting up new data models, extending database structure       |
+| **delete-collection**| Delete collections (with confirmation)               | Removing unused collections, cleaning up data models           |
 | **read-items**       | Fetch items from any collection                      | Retrieving content, searching for data, displaying information |
 | **create-item**      | Create new items in collections                      | Adding new content, records, or entries                        |
 | **update-item**      | Modify existing items                                | Editing content, updating statuses, correcting information     |
@@ -305,6 +307,86 @@ Sample Claude Desktop Config for local dev with full settings
 	}
 }
 ```
+
+## Collection Management Examples
+
+### Creating a New Collection
+
+The `create-collection` tool allows you to create new collections with fields and metadata:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "create-blog",
+  "method": "tools/call",
+  "params": {
+    "name": "create-collection",
+    "arguments": {
+      "collection": "blog_posts",
+      "meta": {
+        "icon": "article",
+        "note": "Blog posts collection",
+        "singleton": false,
+        "hidden": false
+      },
+      "fields": [
+        {
+          "field": "title",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "required": true,
+            "width": "full"
+          },
+          "schema": {
+            "is_nullable": false
+          }
+        },
+        {
+          "field": "content",
+          "type": "text",
+          "meta": {
+            "interface": "input-rich-text-html",
+            "width": "full"
+          }
+        },
+        {
+          "field": "published",
+          "type": "boolean",
+          "meta": {
+            "interface": "boolean",
+            "width": "half"
+          },
+          "schema": {
+            "default_value": false
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+### Deleting a Collection
+
+The `delete-collection` tool allows you to remove collections (with safety confirmation):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "delete-test",
+  "method": "tools/call",
+  "params": {
+    "name": "delete-collection",
+    "arguments": {
+      "collection": "temporary_collection",
+      "confirm": true
+    }
+  }
+}
+```
+
+**⚠️ Warning**: The `delete-collection` tool permanently removes the collection and all its data. Always ensure you have backups and use the `confirm: true` parameter.
 
 # ❤️ Contributing
 
