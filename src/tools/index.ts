@@ -1,5 +1,6 @@
 import type { Config } from '../config.js';
 import type { ToolDefinition } from '../types/tool.js';
+import { createCollectionTool, deleteCollectionTool } from './collections.js';
 import { readCommentsTool, upsertCommentTool } from './comments.js';
 import {
 	createFieldTool,
@@ -35,6 +36,9 @@ export const getTools = (config: Config) => {
 		readUsersTool,
 		// Schema
 		schemaTool,
+		// Collections
+		createCollectionTool,
+		deleteCollectionTool,
 		// Items
 		readItemsTool,
 		createItemTool,
