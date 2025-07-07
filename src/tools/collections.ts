@@ -1,6 +1,23 @@
 import * as z from 'zod';
 import { defineTool } from '../utils/define.js';
 import { createCollection, deleteCollection } from '@directus/sdk';
+import { fetchSchema } from '../utils/fetch-schema.js';
+import type { Directus } from '../directus.js';
+import type { Schema } from '../types/schema.js';
+
+/**
+ * Properly refreshes the schema cache by clearing old data and loading fresh schema
+ */
+async function refreshSchema(directus: Directus, schema: Schema): Promise<void> {
+	// Clear all existing keys from the schema cache
+	for (const key in schema) {
+		delete schema[key];
+	}
+	
+	// Fetch fresh schema and assign to the cache
+	const updatedSchema = await fetchSchema(directus);
+	Object.assign(schema, updatedSchema);
+}
 
 // Schema for collection meta configuration
 const collectionMetaSchema = z.object({
@@ -74,7 +91,7 @@ export const createCollectionTool = defineTool('create-collection', {
 		}).optional().describe('Optional database schema configuration.'),
 		fields: z.array(collectionFieldSchema).optional().describe('Optional array of fields to create with the collection.'),
 	}),
-	handler: async (directus, args) => {
+	handler: async (directus, args, { schema }) => {
 		try {
 			// Prepare the collection data
 			const collectionData: any = {
@@ -90,6 +107,9 @@ export const createCollectionTool = defineTool('create-collection', {
 					name: args.schema.name || args.collection,
 					comment: args.schema.comment,
 				};
+			} else {
+				// Set empty schema object to create real collection with default fields
+				collectionData.schema = {};
 			}
 
 			if (args.fields && args.fields.length > 0) {
@@ -98,6 +118,9 @@ export const createCollectionTool = defineTool('create-collection', {
 
 			// Create the collection
 			const result = await directus.request(createCollection(collectionData));
+
+			// Refresh the schema cache after creating the collection
+			await refreshSchema(directus, schema);
 
 			return {
 				content: [
@@ -108,7 +131,8 @@ export const createCollectionTool = defineTool('create-collection', {
 				],
 			};
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
+			const errorMessage = error instanceof Error ? error.message : 
+				typeof error === 'object' ? JSON.stringify(error, null, 2) : String(error);
 			return {
 				content: [
 					{
@@ -127,7 +151,7 @@ export const deleteCollectionTool = defineTool('delete-collection', {
 		collection: z.string().describe('The name (ID) of the collection to delete.'),
 		confirm: z.boolean().default(false).describe('Set to true to confirm deletion. This is a safety measure.'),
 	}),
-	handler: async (directus, args) => {
+	handler: async (directus, args, { schema }) => {
 		try {
 			// Safety check
 			if (!args.confirm) {
@@ -144,6 +168,9 @@ export const deleteCollectionTool = defineTool('delete-collection', {
 			// Delete the collection
 			await directus.request(deleteCollection(args.collection));
 
+			// Refresh the schema cache after deleting the collection
+			await refreshSchema(directus, schema);
+
 			return {
 				content: [
 					{
@@ -153,7 +180,8 @@ export const deleteCollectionTool = defineTool('delete-collection', {
 				],
 			};
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
+			const errorMessage = error instanceof Error ? error.message : 
+				typeof error === 'object' ? JSON.stringify(error, null, 2) : String(error);
 			return {
 				content: [
 					{
