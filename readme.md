@@ -154,6 +154,7 @@ The MCP Server provides the following tools to interact with your Directus insta
 | **users-me**         | Get current user information                         | Understanding permissions, personalizing responses             |
 | **read-collections** | Retrieve the schema of all collections               | Exploring database structure, understanding relationships      |
 | **create-collection**| Create new collections with fields and metadata      | Setting up new data models, extending database structure       |
+| **update-collection**| Update metadata for existing collections            | Modifying collection settings, changing icons, notes           |
 | **delete-collection**| Delete collections (with confirmation)               | Removing unused collections, cleaning up data models           |
 | **create-collection-group**| Create new collection groups (folders)         | Organizing collections into logical groups                      |
 | **delete-collection-group**| Delete collection groups (with confirmation)   | Removing collection groups, moving collections to root level   |
@@ -504,6 +505,8 @@ PRs.
 ## 🙏 Thanks To
 
 This started as an experiment by the dude, the legend, the [@rijkvanzanten](https://github.com/rijkvanzanten) 🙌
+
+Special thanks to [Mustafa Öztürk](https://github.com/bymustfa) for contributing the `update-collection` tool and other enhancements. Check out his fork at: https://github.com/bymustfa/directus-mcp.git
 
 ## License
 

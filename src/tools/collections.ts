@@ -2,6 +2,7 @@ import * as z from 'zod';
 import { defineTool } from '../utils/define.js';
 import { createCollection, deleteCollection, readCollections, updateCollection } from '@directus/sdk';
 import { fetchSchema } from '../utils/fetch-schema.js';
+import { formatErrorResponse, formatSuccessResponse } from '../utils/response.js';
 import type { Directus } from '../directus.js';
 import type { Schema } from '../types/schema.js';
 
@@ -481,6 +482,23 @@ export const listCollectionGroupsTool = defineTool('list-collection-groups', {
 					},
 				],
 			};
+		}
+	},
+});
+
+export const updateCollectionTool = defineTool('update-collection', {
+	description: 'Update the metadata for an existing collection. Only the meta values of the collection object can be updated. Updating the collection name is not supported at this time.',
+	inputSchema: z.object({
+		collection: z.string().describe('Unique identifier of the collection.'),
+		meta: z.record(z.string(), z.unknown()).describe('Metadata of the collection.'),
+	}),
+	handler: async (directus, input) => {
+		try {
+			const { collection, meta } = input;
+			const result = await directus.request(updateCollection(collection, { meta }));
+			return formatSuccessResponse(result);
+		} catch (error) {
+			return formatErrorResponse(error);
 		}
 	},
 });

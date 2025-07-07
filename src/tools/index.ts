@@ -3,6 +3,7 @@ import type { ToolDefinition } from '../types/tool.js';
 import { 
 	createCollectionTool, 
 	deleteCollectionTool,
+	updateCollectionTool,
 	createCollectionGroupTool,
 	deleteCollectionGroupTool,
 	assignCollectionToGroupTool,
@@ -46,6 +47,7 @@ export const getTools = (config: Config) => {
 		schemaTool,
 		// Collections
 		createCollectionTool,
+		updateCollectionTool,
 		deleteCollectionTool,
 		createCollectionGroupTool,
 		deleteCollectionGroupTool,
