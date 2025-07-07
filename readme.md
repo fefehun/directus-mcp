@@ -6,10 +6,11 @@ LLMs talk to applications and services like Directus.
 The Directus Content MCP Server is an interface for Directus users to interact with their data in LLMs. Some good use
 cases are:
 
-- **Content Editors**: build custom pages, write blog posts, update content, organize assets and more inside your
+- **Content Editors**: build custom pages, write blog posts, update content, organize assets and collections into groups, and more inside your
   Directus project.
 - **Data Analysts**: query collections, generate reports, analyze trends, and extract insights from your Directus data
   using natural language.
+- **System Administrators**: organize collections into logical groups, manage database structure, and maintain clean data organization.
 
 It intentionally limits destructive actions that would result in really bad outcomes like data loss from deleting fields
 or deleting collections.
@@ -154,6 +155,11 @@ The MCP Server provides the following tools to interact with your Directus insta
 | **read-collections** | Retrieve the schema of all collections               | Exploring database structure, understanding relationships      |
 | **create-collection**| Create new collections with fields and metadata      | Setting up new data models, extending database structure       |
 | **delete-collection**| Delete collections (with confirmation)               | Removing unused collections, cleaning up data models           |
+| **create-collection-group**| Create new collection groups (folders)         | Organizing collections into logical groups                      |
+| **delete-collection-group**| Delete collection groups (with confirmation)   | Removing collection groups, moving collections to root level   |
+| **assign-collection-to-group**| Assign collections to groups             | Organizing existing collections into groups                     |
+| **remove-collection-from-group**| Remove collections from groups        | Moving collections back to root level                          |
+| **list-collection-groups**| List all groups and their collections         | Viewing collection organization structure                       |
 | **read-items**       | Fetch items from any collection                      | Retrieving content, searching for data, displaying information |
 | **create-item**      | Create new items in collections                      | Adding new content, records, or entries                        |
 | **update-item**      | Modify existing items                                | Editing content, updating statuses, correcting information     |
@@ -293,7 +299,7 @@ Sample Claude Desktop Config for local dev with full settings
 			"env": {
 				"DIRECTUS_URL": "https://your-directus-instance.com",
 				"DIRECTUS_TOKEN": "your_directus_token",
-				"DISABLE_TOOLS": ["delete-item", "update-field"],
+				"DISABLE_TOOLS": ["delete-item", "update-field", "delete-collection", "delete-collection-group"],
 				"MCP_SYSTEM_PROMPT_ENABLED": "true",
 				"MCP_SYSTEM_PROMPT": "You are an assistant specialized in managing content for our marketing website.",
 				"DIRECTUS_PROMPTS_COLLECTION_ENABLED": "true",
@@ -387,6 +393,108 @@ The `delete-collection` tool allows you to remove collections (with safety confi
 ```
 
 **⚠️ Warning**: The `delete-collection` tool permanently removes the collection and all its data. Always ensure you have backups and use the `confirm: true` parameter.
+
+## Collection Group Management Examples
+
+### Creating a Collection Group
+
+The `create-collection-group` tool allows you to create organizational folders for your collections:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "create-group",
+  "method": "tools/call",
+  "params": {
+    "name": "create-collection-group",
+    "arguments": {
+      "group": "user-management",
+      "meta": {
+        "icon": "people",
+        "note": "User and role management collections",
+        "color": "#2196F3",
+        "sort": 1
+      }
+    }
+  }
+}
+```
+
+### Assigning Collections to Groups
+
+The `assign-collection-to-group` tool allows you to organize existing collections into groups:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "assign-collection",
+  "method": "tools/call",
+  "params": {
+    "name": "assign-collection-to-group",
+    "arguments": {
+      "collection": "users",
+      "group": "user-management"
+    }
+  }
+}
+```
+
+### Listing Collection Groups
+
+The `list-collection-groups` tool shows you the organization structure of your collections:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "list-groups",
+  "method": "tools/call",
+  "params": {
+    "name": "list-collection-groups",
+    "arguments": {
+      "includeCollections": true
+    }
+  }
+}
+```
+
+### Removing Collections from Groups
+
+The `remove-collection-from-group` tool moves collections back to the root level:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "remove-from-group",
+  "method": "tools/call",
+  "params": {
+    "name": "remove-collection-from-group",
+    "arguments": {
+      "collection": "users"
+    }
+  }
+}
+```
+
+### Deleting a Collection Group
+
+The `delete-collection-group` tool removes a group and moves its collections to root level:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "delete-group",
+  "method": "tools/call",
+  "params": {
+    "name": "delete-collection-group",
+    "arguments": {
+      "group": "user-management",
+      "confirm": true
+    }
+  }
+}
+```
+
+**⚠️ Warning**: The `delete-collection-group` tool removes the group and moves all its collections to the root level. Use the `confirm: true` parameter to proceed.
 
 # ❤️ Contributing
 
